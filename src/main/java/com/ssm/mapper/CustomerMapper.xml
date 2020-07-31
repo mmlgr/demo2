@@ -1,0 +1,126 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--<mapper namespace="resources.CustomerMapper">-->
+<mapper namespace="com.ssm.mapper.CustomerMapper">
+    <!-- <if>元素使用 -->
+    <select id="sqlif" parameterType="com.ssm.po.Customer"
+            resultType="com.ssm.po.Customer">
+        select * from t_customer where 1=1
+        <if test="username !=null and username !=''">
+            and username like concat('%',#{username},'%')
+        </if> <if test="jobs !=null and jobs !=''">
+        and jobs= #{jobs}
+    </if>
+    </select>
+    <select id="getCustbyid" parameterType="integer"  resultType="com.ssm.po.Customer">
+     select * from t_customer where  id=#{0}
+    </select>
+    <select id="getCustbyid2" parameterType="integer"  resultType="com.ssm.po.Customer">
+     select * from t_customer where  id>#{id}
+    </select>
+    <!--<choose>(<when>、<otherwise>)元素使用 -->
+    <!--    有时候，我们不想使用所有的条件，而只是想从多个条件中选择一个使用。针对这种情况，MyBatis 提供了 choose 元素，它有点像 Java 中的 switch 语句。-->
+
+    <!--    还是上面的例子，但是策略变为：传入了 “title” 就按 “title” 查找，传入了 “author” 就按 “author” 查找的情形。若两者都没有传入，就返回标记为 featured 的 BLOG（这可能是管理员认为，与其返回大量的无意义随机 Blog，还不如返回一些由管理员挑选的 Blog）。-->
+    <select id="selectchoose" parameterType="com.ssm.po.Customer"
+            resultType="com.ssm.po.Customer">
+        select * from t_customer where 1=1
+        <choose>
+            <when test="username !=null and username !=''">
+                and username like concat('%',#{username}, '%')
+            </when>
+            <when test="jobs !=null and jobs !=''">
+                and jobs= #{jobs}
+            </when>
+            <otherwise>
+                and phone is  null
+            </otherwise>
+        </choose>
+    </select>
+
+    <!-- <where>元素 -->
+    <!--    where 元素只会在子元素返回任何内容的情况下才插入 “WHERE” 子句。
+    而且，若子句的开头为 “AND” 或 “OR”，where 元素也会将它们去除。-->
+    <select id="mywhere" parameterType="com.ssm.po.Customer"
+            resultType="com.ssm.po.Customer">
+        select * from t_customer
+        <where>
+            <if test="username !=null and username !=''">
+                and username like concat('%',#{username},'%')
+            </if>
+            <if test="jobs !=null and jobs !=''">
+                and jobs= #{jobs}
+            </if>
+        </where>
+    </select>
+
+    <!-- <trim>元素 -->
+    <select id="mytrim" parameterType="com.ssm.po.Customer"
+            resultType="com.ssm.po.Customer">
+        select * from t_customer
+        <trim prefix="where" prefixOverrides="and |OR">
+            <if test="username !=null and username !=''">
+                and username like concat('%',#{username}, '%')
+            </if>
+            <if test="jobs !=null and jobs !=''">
+                and jobs= #{jobs}
+            </if>
+        </trim>
+    </select>
+    <!-- <set>元素 -->
+    <!--    用于动态更新语句的类似解决方案叫做 set。
+    set 元素可以用于动态包含需要更新的列，忽略其它不更新的列。比如：-->
+    <!--   set 元素会动态地在行首插入 SET 关键字，并会删掉额外的逗号-->
+    <update id="myset" parameterType="com.ssm.po.Customer">
+        update t_customer
+        <set>
+            <if test="username !=null and username !=''">
+                username=#{username},
+            </if>
+            <if test="jobs !=null and jobs !=''">
+                jobs=#{jobs},
+            </if>
+            <if test="phone !=null and phone !=''">
+                phone=#{phone},
+            </if>
+        </set>
+        where id=#{id}
+    </update>
+
+    <!--<foreach>元素使用 -->
+    <!--    动态 SQL 的另一个常见使用场景是对集合进行遍历（尤其是在构建 IN 条件语句的时候）。比如：-->
+
+    <select id="myforeach" parameterType="List"
+            resultType="com.ssm.po.Customer">
+        select * from t_customer where id in
+        <foreach item="id" index="index" collection="list" open="("
+                 separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+    <select id="myforeach2" parameterType="List"
+            resultType="com.ssm.po.Customer">
+        select * from t_customer where username in
+        <foreach item="username" index="index" collection="list" open="("
+                 separator="," close=")">
+            #{username}
+        </foreach>
+    </select>
+
+    <!--<bind>元素的使用：根据客户名模糊查询客户信息 -->
+    <!--    bind 元素允许你在 OGNL 表达式以外创建一个变量，并将其绑定到当前的上下文-->
+    <select id="mybind" parameterType="com.ssm.po.Customer"
+            resultType="com.ssm.po.Customer">
+        <!--_parameter.getUsername()也可直接写成传入的字段属性名，即username -->
+        <bind name="pattern_username" value="'%'+_parameter.getUsername()+'%'" />
+        select * from t_customer
+        where
+        username like #{pattern_username}
+    </select>
+
+
+
+</mapper>

@@ -1,0 +1,82 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>hello</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+
+    <style>
+        .showing{
+            margin-left: 20%;
+        }
+        h2{
+            text-decoration: underline;
+            font-size:0.9em;
+            color:gray;
+        }
+        .even{
+            text-decoration: underline;
+            background: blue;
+
+            color:white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="showing">
+    <div class="showing date">
+        <h2>格式化日期</h2>
+        直接输出日期 ${now}:
+        <p th:text="${now}"></p>
+        默认格式化 ${#dates.format(now)}:
+        <p th:text="${#dates.format(now)}"></p>
+        自定义格式化 ${#dates.format(now,'yyyy-MM-dd HH:mm:ss')}:
+        <p th:text="${#dates.format(now,'yyyy年MM月dd日 HH:mm')}"></p>
+    </div>
+
+    <h2>遍历</h2>
+
+    <table>
+        <thead>
+        <tr>
+            <th>id</th>
+            <th>产品名称</th>
+            <th>价格</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="p: ${ps}">
+            <td th:text="${p.id}"></td>
+            <td th:text="${p.name}"></td>
+            <td th:text="${p.price}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="showing">
+    <h2>带状态遍历</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>index</th>
+            <th>id</th>
+            <th>产品名称</th>
+            <th>价格</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:class="${status.even}?'even':'odd'" th:each="p,status: ${ps}">
+            <td  th:text="${status.index}"></td>
+            <td th:text="${p.id}"></td>
+            <td th:text="${p.name}"></td>
+            <td th:text="${p.price+100}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+
+</html>
